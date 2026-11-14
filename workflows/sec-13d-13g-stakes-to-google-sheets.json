@@ -1,0 +1,138 @@
+{
+  "name": "SEC Schedule 13D / 13G activist and 5% stakes to Google Sheets (Apify)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## SEC Schedule 13D / 13G activist and 5% stakes to Google Sheets (Apify)\n\n1. Add your **Apify** credential (Apify API token) to the Apify node.\n2. Add a **Google Sheets** credential and pick your spreadsheet in the last node.\n3. Edit the input JSON in the Apify node (put your own email in `secContactEmail`: the SEC requires every automated request to identify its sender).\n4. Click Execute workflow. The Actor is pay per event: [https://apify.com/johnveds15/sec-13d-13g-ownership-stakes](https://apify.com/johnveds15/sec-13d-13g-ownership-stakes). The Apify node's *Maximum Cost per Run* is set so one run cannot exceed it.",
+        "height": 260,
+        "width": 520
+      },
+      "id": "n-note",
+      "name": "Read me",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "recentlyUsed",
+        "actorId": "johnveds15~sec-13d-13g-ownership-stakes",
+        "actorInputMode": "json",
+        "customBody": "{\n  \"secContactEmail\": \"you@example.com\",\n  \"lookbackDays\": 3,\n  \"maxFilings\": 150,\n  \"includeAmendments\": true,\n  \"activistOnly\": false\n}",
+        "timeout": null,
+        "memory": 1024,
+        "maxTotalChargeUsd": 1.0,
+        "build": ""
+      },
+      "id": "n-apify",
+      "name": "Run Apify Actor",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Sheets cells hold text and numbers, so nested objects/arrays become JSON text.\n// Fails loudly when the actor returned nothing, instead of writing an empty sheet.\nconst items = $input.all().filter(i => i.json && Object.keys(i.json).length > 0);\nif (items.length === 0) {\n  throw new Error('The Apify actor returned 0 dataset items. Check the run in Apify Console (console.apify.com > Runs); nothing was written to the sheet.');\n}\nreturn items.map(({ json }) => {\n  const row = {};\n  for (const [k, v] of Object.entries(json)) {\n    if (v === null || v === undefined) row[k] = '';\n    else if (typeof v === 'object') row[k] = JSON.stringify(v).slice(0, 5000);\n    else if (typeof v === 'string') row[k] = v.slice(0, 5000);\n    else row[k] = v;\n  }\n  return { json: row };\n});"
+      },
+      "id": "n-flatten",
+      "name": "Flatten for Sheets",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "n-sheets",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        780,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Apify Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Actor": {
+      "main": [
+        [
+          {
+            "node": "Flatten for Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten for Sheets": {
+      "main": [
+        [
+          {
+            "node": "Append to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "tags": []
+}
