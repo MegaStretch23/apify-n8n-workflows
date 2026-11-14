@@ -8,6 +8,8 @@ Three n8n workflows that run a paid [Apify](https://apify.com) Actor with the of
 | SEC Schedule 13D / 13G activist and 5% stakes to Google Sheets (Apify) | [johnveds15~sec-13d-13g-ownership-stakes](https://apify.com/johnveds15/sec-13d-13g-ownership-stakes) | [sec-13d-13g-stakes-to-google-sheets.json](workflows/sec-13d-13g-stakes-to-google-sheets.json) |
 | SEC Form 4 insider-buying clusters to Google Sheets (Apify) | [johnveds15~sec-form4-insider-clusters](https://apify.com/johnveds15/sec-form4-insider-clusters) | [sec-form4-insider-clusters-to-google-sheets.json](workflows/sec-form4-insider-clusters-to-google-sheets.json) |
 
+**Prefer one download?** The same files plus setup notes are also sold as a $19 bundle: https://vedovino.gumroad.com/l/fyrqk (everything here stays free).
+
 ## TikTok trending hashtags, sounds and creators to Google Sheets (Apify)
 
 Runs the TikTok Trending Scraper Apify Actor on demand or on a schedule and appends every trending hashtag, sound and creator row to a Google Sheet.
